@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TEAM WESTERN'S — TV & Film Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --bg4: #22222f;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --muted: #888899;
+    --accent: #7c6af7;
+    --accent2: #a855f7;
+    --green: #22c55e;
+    --red: #ef4444;
+    --amber: #f59e0b;
+    --blue: #3b82f6;
+    --teal: #14b8a6;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: -10%;
+    width: 60%;
+    height: 60%;
+    background: radial-gradient(ellipse, rgba(124,106,247,0.07) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 50%;
+    height: 50%;
+    background: radial-gradient(ellipse, rgba(168,85,247,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+  }
+
+  .logo {
+    font-family: var(--font-head);
+    font-weight: 800;
+    font-size: 1.4rem;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .logo span {
+    display: block;
+    font-weight: 400;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    -webkit-text-fill-color: var(--muted);
+    margin-top: -3px;
+  }
+
+  .header-right { display: flex; gap: 0.75rem; align-items: center; }
+
+  .webhook-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot.on { background: var(--green); box-shadow: 0 0 5px rgba(34,197,94,0.6); }
+  .dot.off { background: var(--muted); }
+
+  .btn {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn:hover { background: var(--bg4); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #6c5be6; border-color: #6c5be6; }
+  .btn-sm { font-size: 0.72rem; padding: 0.3rem 0.65rem; }
+  .btn-danger { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.25); color: var(--red); }
+  .btn-danger:hover { background: rgba(239,68,68,0.2); }
+
+  main {
+    position: relative;
+    z-index: 1;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.3rem;
+  }
+
+  .stat-value {
+    font-family: var(--font-head);
+    font-size: 1.7rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .toolbar {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .search-wrap { flex: 1; min-width: 180px; position: relative; }
+  .search-wrap input { padding-left: 2.1rem; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 0.85rem; }
+
+  input[type="text"], input[type="url"], select, textarea {
+    width: 100%;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+  select option { background: var(--bg3); }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .chips {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  .chip {
+    font-size: 0.72rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid var(--border2);
+    background: var(--bg2);
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .chip:hover, .chip.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 1rem;
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+
+  .card:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+
+  .card-poster {
+    width: 100%;
+    height: 155px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .card-poster-ph {
+    width: 100%;
+    height: 155px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+  }
+
+  .card-body { padding: 0.9rem; }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .card-title {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: 0.9rem;
+    line-height: 1.3;
+    flex: 1;
+  }
+
+  .badge {
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 0.18rem 0.5rem;
+    border-radius: 999px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .b-returning { background: rgba(34,197,94,0.13); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+  .b-renewed { background: rgba(59,130,246,0.13); color: var(--blue); border: 1px solid rgba(59,130,246,0.2); }
+  .b-new { background: rgba(124,106,247,0.15); color: var(--accent); border: 1px solid rgba(124,106,247,0.25); }
+  .b-cancelled, .b-ended { background: rgba(239,68,68,0.12); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .b-hiatus { background: rgba(245,158,11,0.12); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+  .b-filming { background: rgba(20,184,166,0.12); color: var(--teal); border: 1px solid rgba(20,184,166,0.2); }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .tag {
+    font-size: 0.65rem;
+    color: var(--muted);
+    background: var(--bg3);
+    padding: 0.12rem 0.45rem;
+    border-radius: 4px;
+  }
+
+  .card-info {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 0.7rem;
+  }
+
+  .card-info strong { color: rgba(255,255,255,0.7); }
+
+  .card-actions {
+    display: flex;
+    gap: 0.45rem;
+    padding-top: 0.7rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .card-actions select { flex: 1; font-size: 0.72rem; padding: 0.3rem 0.45rem; border-radius: 6px; }
+
+  .empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--muted);
+    grid-column: 1/-1;
+  }
+
+  .empty-icon { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.35; }
+
+  /* Modal */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(10px);
+    z-index: 500;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .overlay.open { display: flex; }
+
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 18px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+  }
+
+  .modal-head {
+    padding: 1.4rem 1.4rem 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .modal-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; }
+
+  .close-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 30px; height: 30px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+
+  .close-btn:hover { background: var(--bg4); color: var(--text); }
+
+  .modal-body { padding: 0 1.4rem 1.4rem; }
+
+  .tabs {
+    display: flex;
+    gap: 0.2rem;
+    background: var(--bg3);
+    border-radius: 9px;
+    padding: 0.2rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .tab {
+    flex: 1;
+    text-align: center;
+    padding: 0.45rem;
+    border-radius: 7px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.15s;
+  }
+
+  .tab.active { background: var(--bg2); color: var(--text); font-weight: 500; }
+
+  .results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    max-height: 380px;
+    overflow-y: auto;
+    margin-bottom: 0.75rem;
+  }
+
+  .result-item {
+    display: flex;
+    gap: 0.7rem;
+    padding: 0.65rem;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.15s;
+    align-items: center;
+  }
+
+  .result-item:hover { border-color: var(--accent); background: rgba(124,106,247,0.05); }
+
+  .result-thumb {
+    width: 44px; height: 60px;
+    border-radius: 5px;
+    object-fit: cover;
+    background: var(--bg3);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+
+  .result-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 5px; }
+
+  .result-title { font-weight: 600; font-size: 0.82rem; margin-bottom: 0.15rem; }
+  .result-meta { font-size: 0.72rem; color: var(--muted); }
+
+  .fg { display: grid; grid-template-columns: 1fr 1fr; gap: 0.65rem; }
+  .fg1 { margin-bottom: 0.75rem; }
+  .fl { display: block; font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+
+  /* Settings panel */
+  .panel {
+    display: none;
+    position: fixed;
+    right: 0; top: 0;
+    width: 360px;
+    height: 100vh;
+    background: var(--bg2);
+    border-left: 1px solid var(--border2);
+    z-index: 400;
+    overflow-y: auto;
+    box-shadow: -20px 0 60px rgba(0,0,0,0.5);
+  }
+
+  .panel.open { display: block; }
+  .panel-head {
+    padding: 1.4rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    background: var(--bg2);
+  }
+
+  .panel-head-title { font-family: var(--font-head); font-weight: 700; }
+  .panel-body { padding: 1.4rem; }
+
+  .section-title {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .discord-mock {
+    background: #313338;
+    border-radius: 8px;
+    padding: 0.9rem;
+    font-size: 0.76rem;
+    border-left: 4px solid var(--accent);
+    margin-top: 0.75rem;
+    font-family: var(--font-body);
+  }
+
+  .discord-mock .dm-bot { color: #949cf7; font-weight: 600; font-size: 0.72rem; margin-bottom: 0.4rem; }
+  .discord-mock .dm-title { color: #fff; font-weight: 700; font-size: 0.88rem; margin-bottom: 0.2rem; }
+  .discord-mock .dm-desc { color: #b5bac1; line-height: 1.4; }
+  .discord-mock .dm-field { margin-top: 0.4rem; }
+  .discord-mock .dm-fname { color: #80848e; font-size: 0.68rem; text-transform: uppercase; }
+  .discord-mock .dm-fval { color: #b5bac1; }
+
+  .toast-wrap {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+
+  .toast {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 9px;
+    padding: 0.65rem 1rem;
+    font-size: 0.78rem;
+    max-width: 280px;
+    animation: tin 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .toast.s { border-left: 3px solid var(--green); }
+  .toast.e { border-left: 3px solid var(--red); }
+  .toast.i { border-left: 3px solid var(--blue); }
+
+  @keyframes tin { from { opacity:0; transform:translateX(16px); } to { opacity:1; transform:none; } }
+
+  .spin {
+    width: 16px; height: 16px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: sp 0.6s linear infinite;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  @keyframes sp { to { transform: rotate(360deg); } }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+
+  @media (max-width: 640px) {
+    main { padding: 1rem; }
+    header { padding: 1rem; }
+    .panel { width: 100%; }
+    .fg { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    TELLY
+    <span>TV &amp; FILM TRACKER</span>
+  </div>
+  <div class="header-right">
+    <div class="webhook-status">
+      <div class="dot off" id="wDot"></div>
+      <span id="wLabel">No webhook</span>
+    </div>
+    <button class="btn" onclick="openPanel()">⚙ Settings</button>
+    <button class="btn btn-primary" onclick="openAdd()">+ Add Show</button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-card">
+      <div class="stat-label">Total</div>
+      <div class="stat-value" id="sTotal">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Returning</div>
+      <div class="stat-value" style="color:var(--green)" id="sReturning">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Renewed</div>
+      <div class="stat-value" style="color:var(--blue)" id="sRenewed">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Cancelled</div>
+      <div class="stat-value" style="color:var(--red)" id="sCancelled">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">On Hiatus</div>
+      <div class="stat-value" style="color:var(--amber)" id="sHiatus">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">UK Shows</div>
+      <div class="stat-value" id="sUK">0</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">US Shows</div>
+      <div class="stat-value" id="sUS">0</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="lSearch" placeholder="Search your list..." oninput="render()">
+    </div>
+    <select id="fStatus" onchange="render()" style="width:150px">
+      <option value="">All Statuses</option>
+      <option>Returning</option>
+      <option>Renewed</option>
+      <option>New Season</option>
+      <option>On Hiatus</option>
+      <option>Filming</option>
+      <option>Cancelled</option>
+      <option>Ended</option>
+    </select>
+    <select id="fType" onchange="render()" style="width:120px">
+      <option value="">All Types</option>
+      <option value="TV">TV Shows</option>
+      <option value="Film">Films</option>
+    </select>
+    <select id="fRegion" onchange="render()" style="width:110px">
+      <option value="">All Regions</option>
+      <option value="UK">UK</option>
+      <option value="US">US</option>
+      <option value="Other">Other</option>
+    </select>
+    <select id="fSort" onchange="render()" style="width:130px">
+      <option value="added">Recently Added</option>
+      <option value="az">A–Z</option>
+      <option value="status">By Status</option>
+      <option value="year">By Year</option>
+    </select>
+  </div>
+
+  <!-- Chips -->
+  <div class="chips">
+    <div class="chip active" onclick="chip(this,'all')">All</div>
+    <div class="chip" onclick="chip(this,'uk')">🇬🇧 UK</div>
+    <div class="chip" onclick="chip(this,'us')">🇺🇸 US</div>
+    <div class="chip" onclick="chip(this,'tv')">📺 TV</div>
+    <div class="chip" onclick="chip(this,'film')">🎬 Film</div>
+    <div class="chip" onclick="chip(this,'returning')">✅ Returning</div>
+    <div class="chip" onclick="chip(this,'cancelled')">❌ Cancelled</div>
+    <div class="chip" onclick="chip(this,'renewed')">🔄 Renewed</div>
+    <div class="chip" onclick="chip(this,'hiatus')">⏸ Hiatus</div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid" id="grid">
+    <div class="empty">
+      <div class="empty-icon">📺</div>
+      <p style="font-size:0.95rem;font-weight:600;margin-bottom:0.4rem;">Your list is empty</p>
+      <p style="font-size:0.82rem;">Click <strong>+ Add Show</strong> to search and add shows or films</p>
+    </div>
+  </div>
+</main>
+
+<!-- ADD MODAL -->
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Add to Your List</div>
+      <button class="close-btn" onclick="closeOverlay('addOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="tabs">
+        <div class="tab active" onclick="switchTab('search',this)">🔍 Search Online</div>
+        <div class="tab" onclick="switchTab('manual',this)">✏️ Manual Entry</div>
+      </div>
+
+      <div id="tSearch">
+        <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem;">
+          <div class="search-wrap" style="flex:1">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="sQuery" placeholder="Search shows or films..." style="padding-left:2.1rem" onkeydown="if(event.key==='Enter')doSearch()">
+          </div>
+          <button class="btn btn-primary" onclick="doSearch()" id="sBtn">Search</button>
+        </div>
+        <div class="results-list" id="results"></div>
+        <p style="font-size:0.7rem;color:var(--muted);text-align:center;">Searches TVMaze (free) for UK & US shows + OMDB for films</p>
+      </div>
+
+      <div id="tManual" style="display:none">
+        <div class="fg1"><label class="fl">Title *</label><input type="text" id="mTitle" placeholder="Show or film title"></div>
+        <div class="fg fg1">
+          <div><label class="fl">Type</label><select id="mType"><option value="TV">TV Show</option><option value="Film">Film</option></select></div>
+          <div><label class="fl">Region</label><select id="mRegion"><option value="UK">UK</option><option value="US">US</option><option value="Other">Other</option></select></div>
+        </div>
+        <div class="fg fg1">
+          <div><label class="fl">Network / Channel</label><input type="text" id="mNetwork" placeholder="e.g. BBC One, Netflix"></div>
+          <div><label class="fl">Status</label>
+            <select id="mStatus">
+              <option>Returning</option><option>Renewed</option><option>New Season</option>
+              <option>On Hiatus</option><option>Filming</option><option>Cancelled</option><option>Ended</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg fg1">
+          <div><label class="fl">Season</label><input type="text" id="mSeason" placeholder="e.g. Season 3"></div>
+          <div><label class="fl">Air Date</label><input type="text" id="mAirDate" placeholder="e.g. Jan 2025"></div>
+        </div>
+        <div class="fg1"><label class="fl">Notes</label><textarea id="mNotes" placeholder="Any notes..."></textarea></div>
+        <button class="btn btn-primary" style="width:100%" onclick="addManual()">Add to List</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="editOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="editModalLabel">Edit</div>
+      <button class="close-btn" onclick="closeOverlay('editOverlay')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="eId">
+      <div class="fg1"><label class="fl">Title</label><input type="text" id="eTitle"></div>
+      <div class="fg fg1">
+        <div><label class="fl">Status</label>
+          <select id="eStatus">
+            <option>Returning</option><option>Renewed</option><option>New Season</option>
+            <option>On Hiatus</option><option>Filming</option><option>Cancelled</option><option>Ended</option>
+          </select>
+        </div>
+        <div><label class="fl">Region</label>
+          <select id="eRegion"><option value="UK">UK</option><option value="US">US</option><option value="Other">Other</option></select>
+        </div>
+      </div>
+      <div class="fg fg1">
+        <div><label class="fl">Network</label><input type="text" id="eNetwork"></div>
+        <div><label class="fl">Type</label><select id="eType"><option value="TV">TV Show</option><option value="Film">Film</option></select></div>
+      </div>
+      <div class="fg fg1">
+        <div><label class="fl">Season</label><input type="text" id="eSeason"></div>
+        <div><label class="fl">Air Date</label><input type="text" id="eAirDate"></div>
+      </div>
+      <div class="fg1"><label class="fl">Episodes</label><input type="text" id="eEpisodes" placeholder="e.g. 6 episodes"></div>
+      <div class="fg1"><label class="fl">Genre</label><input type="text" id="eGenre"></div>
+      <div class="fg1"><label class="fl">Notes</label><textarea id="eNotes"></textarea></div>
+      <div style="display:flex;gap:0.6rem">
+        <button class="btn btn-primary" style="flex:1" onclick="saveEdit()">💾 Save</button>
+        <button class="btn btn-danger" onclick="removeShow()">🗑 Remove</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETTINGS PANEL -->
+<div class="panel" id="panel">
+  <div class="panel-head">
+    <div class="panel-head-title">Settings</div>
+    <button class="close-btn" onclick="closePanel()">✕</button>
+  </div>
+  <div class="panel-body">
+
+    <div class="section-title">Discord Webhook</div>
+    <div class="fg1"><label class="fl">Webhook URL</label>
+      <input type="url" id="pWebhook" placeholder="https://discord.com/api/webhooks/..." oninput="saveSettings()">
+    </div>
+    <div class="fg1"><label class="fl">Bot Display Name</label>
+      <input type="text" id="pBotName" placeholder="TELLY Bot" oninput="saveSettings()">
+    </div>
+
+    <div class="fg1">
+      <label class="fl">Notify when status changes to:</label>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.4rem;">
+        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;cursor:pointer">
+          <input type="checkbox" id="nRenewed" checked onchange="saveSettings()"> ✅ Returning / 🔄 Renewed / 🆕 New Season
+        </label>
+        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;cursor:pointer">
+          <input type="checkbox" id="nCancelled" checked onchange="saveSettings()"> ❌ Cancelled / 🔚 Ended
+        </label>
+        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;cursor:pointer">
+          <input type="checkbox" id="nFilming" checked onchange="saveSettings()"> 🎬 Filming
+        </label>
+        <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.82rem;cursor:pointer">
+          <input type="checkbox" id="nHiatus" onchange="saveSettings()"> ⏸ On Hiatus
+        </label>
+      </div>
+    </div>
+
+    <button class="btn" style="width:100%;margin-bottom:1.5rem;" onclick="testDiscord()">🔔 Send Test to Discord</button>
+
+    <div class="section-title">Discord Preview</div>
+    <div class="discord-mock">
+      <div class="dm-bot">🤖 TELLY Bot — Today</div>
+      <div class="dm-title">📺 Status Update — Severance</div>
+      <div class="dm-desc">A show on your watchlist has been updated.</div>
+      <div class="dm-field"><div class="dm-fname">Status Change</div><div class="dm-fval">🔄 Renewed → ✅ Returning</div></div>
+      <div class="dm-field"><div class="dm-fname">Network</div><div class="dm-fval">Apple TV+</div></div>
+      <div class="dm-field"><div class="dm-fname">Season</div><div class="dm-fval">Season 3 · 10 episodes</div></div>
+      <div class="dm-field"><div class="dm-fname">Air Date</div><div class="dm-fval">Autumn 2025</div></div>
+      <div class="dm-field"><div class="dm-fname">Region</div><div class="dm-fval">🇺🇸 US</div></div>
+    </div>
+
+    <div class="section-title" style="margin-top:1.5rem">Data & Backup</div>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem">
+      <button class="btn btn-sm" onclick="exportJSON()">📥 Export JSON</button>
+      <button class="btn btn-sm" onclick="exportCSV()">📊 Export CSV</button>
+      <button class="btn btn-sm" onclick="document.getElementById('iFile').click()">📤 Import JSON</button>
+      <input type="file" id="iFile" accept=".json" style="display:none" onchange="importJSON(event)">
+    </div>
+
+    <div class="section-title">Deploy for Free</div>
+    <p style="font-size:0.76rem;color:var(--muted);line-height:1.6;margin-bottom:0.5rem;">
+      All data is saved in your browser. To access from any device, host this file for free on Netlify.
+    </p>
+    <ol style="font-size:0.76rem;color:var(--muted);line-height:2;padding-left:1.2rem;">
+      <li>Export JSON backup first</li>
+      <li>Go to <span style="color:var(--accent)">app.netlify.com/drop</span></li>
+      <li>Drag and drop this HTML file</li>
+      <li>Share the URL with anyone!</li>
+    </ol>
+
+    <div class="section-title" style="margin-top:1.5rem">About</div>
+    <p style="font-size:0.72rem;color:var(--muted);line-height:1.6">
+      TELLY — built for tracking UK &amp; US TV shows and films. Free forever. Powered by TVMaze &amp; OMDB APIs.
+    </p>
+  </div>
+</div>
+
+<!-- TOASTS -->
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+// ===== DATA =====
+let shows = JSON.parse(localStorage.getItem('telly_shows') || '[]');
+let cfg = JSON.parse(localStorage.getItem('telly_cfg') || '{}');
+let activeChip = 'all';
+let activeTab = 'search';
+
+// ===== BOOT =====
+(function boot() {
+  loadCfg();
+  render();
+  updateDot();
+})();
+
+// ===== SETTINGS =====
+function loadCfg() {
+  if (cfg.webhook) document.getElementById('pWebhook').value = cfg.webhook;
+  if (cfg.botName) document.getElementById('pBotName').value = cfg.botName;
+  document.getElementById('nRenewed').checked = cfg.nRenewed !== false;
+  document.getElementById('nCancelled').checked = cfg.nCancelled !== false;
+  document.getElementById('nFilming').checked = cfg.nFilming !== false;
+  document.getElementById('nHiatus').checked = !!cfg.nHiatus;
+}
+
+function saveSettings() {
+  cfg.webhook = document.getElementById('pWebhook').value.trim();
+  cfg.botName = document.getElementById('pBotName').value.trim() || 'TELLY Bot';
+  cfg.nRenewed = document.getElementById('nRenewed').checked;
+  cfg.nCancelled = document.getElementById('nCancelled').checked;
+  cfg.nFilming = document.getElementById('nFilming').checked;
+  cfg.nHiatus = document.getElementById('nHiatus').checked;
+  localStorage.setItem('telly_cfg', JSON.stringify(cfg));
+  updateDot();
+}
+
+function updateDot() {
+  const d = document.getElementById('wDot');
+  const l = document.getElementById('wLabel');
+  if (cfg.webhook) {
+    d.className = 'dot on';
+    l.textContent = 'Discord connected';
+  } else {
+    d.className = 'dot off';
+    l.textContent = 'No webhook';
+  }
+}
+
+// ===== CHIPS =====
+function chip(el, val) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  activeChip = val;
+  render();
+}
+
+// ===== RENDER =====
+function statusBadgeClass(s) {
+  const m = {
+    'Returning':'returning','Renewed':'renewed','New Season':'new',
+    'Cancelled':'cancelled','Ended':'ended','On Hiatus':'hiatus','Filming':'filming'
+  };
+  return 'b-' + (m[s] || 'returning');
+}
+
+function statusEmoji(s) {
+  const m = {
+    'Returning':'✅','Renewed':'🔄','New Season':'🆕',
+    'Cancelled':'❌','Ended':'🔚','On Hiatus':'⏸','Filming':'🎬'
+  };
+  return m[s] || '📺';
+}
+
+function regionFlag(r) {
+  return r === 'UK' ? '🇬🇧' : r === 'US' ? '🇺🇸' : '🌍';
+}
+
+function render() {
+  const g = document.getElementById('grid');
+  const q = document.getElementById('lSearch').value.toLowerCase();
+  const fS = document.getElementById('fStatus').value;
+  const fT = document.getElementById('fType').value;
+  const fR = document.getElementById('fRegion').value;
+  const sort = document.getElementById('fSort').value;
+
+  let list = shows.filter(s => {
+    const mQ = !q || s.title.toLowerCase().includes(q) || (s.network||'').toLowerCase().includes(q) || (s.genre||'').toLowerCase().includes(q);
+    const mS = !fS || s.status === fS;
+    const mT = !fT || s.type === fT;
+    const mR = !fR || s.region === fR;
+    let mC = true;
+    if (activeChip === 'uk') mC = s.region === 'UK';
+    else if (activeChip === 'us') mC = s.region === 'US';
+    else if (activeChip === 'tv') mC = s.type === 'TV';
+    else if (activeChip === 'film') mC = s.type === 'Film';
+    else if (activeChip === 'returning') mC = ['Returning','New Season'].includes(s.status);
+    else if (activeChip === 'cancelled') mC = ['Cancelled','Ended'].includes(s.status);
+    else if (activeChip === 'renewed') mC = ['Renewed','New Season'].includes(s.status);
+    else if (activeChip === 'hiatus') mC = s.status === 'On Hiatus';
+    return mQ && mS && mT && mR && mC;
+  });
+
+  if (sort === 'az') list.sort((a,b) => a.title.localeCompare(b.title));
+  else if (sort === 'status') list.sort((a,b) => a.status.localeCompare(b.status));
+  else if (sort === 'year') list.sort((a,b) => (b.year||0)-(a.year||0));
+  else list.sort((a,b) => b.addedAt - a.addedAt);
+
+  if (!list.length) {
+    g.innerHTML = `<div class="empty">
+      <div class="empty-icon">🔍</div>
+      <p style="font-size:0.95rem;font-weight:600;margin-bottom:0.4rem;">${shows.length ? 'No matches' : 'Your list is empty'}</p>
+      <p style="font-size:0.82rem;">${shows.length ? 'Try changing your filters' : 'Click <strong>+ Add Show</strong> to get started'}</p>
+    </div>`;
+  } else {
+    g.innerHTML = list.map(s => `
+      <div class="card">
+        ${s.poster
+          ? `<img class="card-poster" src="${s.poster}" alt="" onerror="this.outerHTML='<div class=card-poster-ph>${s.type==='Film'?'🎬':'📺'}</div>'">`
+          : `<div class="card-poster-ph">${s.type === 'Film' ? '🎬' : '📺'}</div>`}
+        <div class="card-body">
+          <div class="card-header">
+            <div class="card-title">${s.title}</div>
+            <span class="badge ${statusBadgeClass(s.status)}">${statusEmoji(s.status)} ${s.status}</span>
+          </div>
+          <div class="tags">
+            ${s.region ? `<span class="tag">${regionFlag(s.region)} ${s.region}</span>` : ''}
+            ${s.type ? `<span class="tag">${s.type}</span>` : ''}
+            ${s.year ? `<span class="tag">${s.year}</span>` : ''}
+            ${s.genre ? `<span class="tag">${s.genre}</span>` : ''}
+          </div>
+          <div class="card-info">
+            ${s.network ? `<div><strong>Network:</strong> ${s.network}</div>` : ''}
+            ${s.season ? `<div><strong>Season:</strong> ${s.season}</div>` : ''}
+            ${s.airDate ? `<div><strong>Air Date:</strong> ${s.airDate}</div>` : ''}
+            ${s.episodes ? `<div><strong>Episodes:</strong> ${s.episodes}</div>` : ''}
+            ${s.notes ? `<div style="margin-top:0.2rem;font-style:italic;opacity:0.7">${s.notes.slice(0,90)}${s.notes.length>90?'…':''}</div>` : ''}
+          </div>
+          <div class="card-actions">
+            <select onchange="quickChange('${s.id}',this.value);this.value=''">
+              <option value="">Change status…</option>
+              <option value="Returning">✅ Returning</option>
+              <option value="Renewed">🔄 Renewed</option>
+              <option value="New Season">🆕 New Season</option>
+              <option value="On Hiatus">⏸ On Hiatus</option>
+              <option value="Filming">🎬 Filming</option>
+              <option value="Cancelled">❌ Cancelled</option>
+              <option value="Ended">🔚 Ended</option>
+            </select>
+            <button class="btn btn-sm" onclick="openEdit('${s.id}')">✏️</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Stats
+  document.getElementById('sTotal').textContent = shows.length;
+  document.getElementById('sReturning').textContent = shows.filter(s=>['Returning','New Season'].includes(s.status)).length;
+  document.getElementById('sRenewed').textContent = shows.filter(s=>s.status==='Renewed').length;
+  document.getElementById('sCancelled').textContent = shows.filter(s=>['Cancelled','Ended'].includes(s.status)).length;
+  document.getElementById('sHiatus').textContent = shows.filter(s=>s.status==='On Hiatus').length;
+  document.getElementById('sUK').textContent = shows.filter(s=>s.region==='UK').length;
+  document.getElementById('sUS').textContent = shows.filter(s=>s.region==='US').length;
+}
+
+// ===== QUICK CHANGE =====
+function quickChange(id, newStatus) {
+  const s = shows.find(x=>x.id===id);
+  if (!s || !newStatus) return;
+  const old = s.status;
+  s.status = newStatus;
+  save();
+  render();
+  toast(`${s.title} → ${newStatus}`, 's');
+  if (shouldNotify(newStatus)) discord(s, old, newStatus);
+}
+
+// ===== SEARCH =====
+async function doSearch() {
+  const q = document.getElementById('sQuery').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('sBtn');
+  const res = document.getElementById('results');
+  btn.innerHTML = '<span class="spin"></span>';
+  btn.disabled = true;
+  res.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem">Searching…</div>';
+
+  // Try TVMaze first (best for UK shows, totally free, no key)
+  try {
+    const r = await fetch(`https://api.tvmaze.com/search/shows?q=${encodeURIComponent(q)}`);
+    const d = await r.json();
+    if (d && d.length) {
+      res.innerHTML = d.slice(0,10).map(item => {
+        const s = item.show;
+        const img = s.image ? s.image.medium : null;
+        const net = s.network ? s.network.name : s.webChannel ? s.webChannel.name : '';
+        const yr = s.premiered ? s.premiered.slice(0,4) : '';
+        const genres = s.genres ? s.genres.slice(0,2).join(', ') : '';
+        return `<div class="result-item" onclick='pickTVMaze(${JSON.stringify(s).replace(/'/g,"&#39;")})'>
+          <div class="result-thumb">${img ? `<img src="${img}" alt="">` : (s.type==='Movie'?'🎬':'📺')}</div>
+          <div>
+            <div class="result-title">${s.name}</div>
+            <div class="result-meta">${yr}${yr&&net?' · ':''}${net}${genres?' · '+genres:''}</div>
+          </div>
+        </div>`;
+      }).join('');
+    } else {
+      // Fallback: try OMDB
+      await omdbSearch(q, res);
+    }
+  } catch(e) {
+    await omdbSearch(q, res);
+  }
+
+  btn.textContent = 'Search';
+  btn.disabled = false;
+}
+
+async function omdbSearch(q, res) {
+  try {
+    const r = await fetch(`https://www.omdbapi.com/?s=${encodeURIComponent(q)}&apikey=trilogy`);
+    const d = await r.json();
+    if (d.Search) {
+      res.innerHTML = d.Search.slice(0,8).map(item => `
+        <div class="result-item" onclick="pickOMDB('${item.imdbID}','${(item.Title||'').replace(/'/g,"\\'")}','${item.Year}','${item.Type}')">
+          <div class="result-thumb">${item.Poster && item.Poster!=='N/A' ? `<img src="${item.Poster}" alt="">` : (item.Type==='movie'?'🎬':'📺')}</div>
+          <div>
+            <div class="result-title">${item.Title}</div>
+            <div class="result-meta">${item.Year} · ${item.Type==='movie'?'Film':'TV Show'}</div>
+          </div>
+        </div>
+      `).join('');
+    } else {
+      res.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.82rem">No results found. Try the Manual Entry tab.</div>';
+    }
+  } catch(e) {
+    res.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:0.82rem">Search error. Check connection or use Manual Entry.</div>';
+  }
+}
+
+function pickTVMaze(s) {
+  const net = s.network ? s.network.name : s.webChannel ? s.webChannel.name : '';
+  const countryCode = s.network && s.network.country ? s.network.country.code : '';
+  const region = countryCode === 'GB' ? 'UK' : countryCode === 'US' ? 'US' : 'Other';
+  const statusMap = { 'Running':'Returning','Ended':'Ended','To Be Determined':'On Hiatus','In Development':'Renewed' };
+  const entry = {
+    id: uid(), title: s.name, type: 'TV',
+    year: s.premiered ? +s.premiered.slice(0,4) : null,
+    network: net, genre: s.genres ? s.genres[0]||'' : '',
+    poster: s.image ? s.image.medium : null,
+    status: statusMap[s.status] || 'Returning',
+    region,
+    season: '', airDate: '',
+    episodes: s.averageRuntime ? `~${s.averageRuntime} min/ep` : '',
+    notes: s.summary ? s.summary.replace(/<[^>]+>/g,'').slice(0,120)+'…' : '',
+    addedAt: Date.now()
+  };
+  addEntry(entry);
+}
+
+async function pickOMDB(imdbId, title, year, type) {
+  const results = document.getElementById('results');
+  results.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:0.82rem"><span class="spin"></span> Loading details…</div>';
+  try {
+    const r = await fetch(`https://www.omdbapi.com/?i=${imdbId}&apikey=trilogy`);
+    const d = await r.json();
+    const entry = {
+      id: uid(), title: d.Title || title, type: d.Type === 'movie' ? 'Film' : 'TV',
+      year: +d.Year || null, network: d.Network || '',
+      genre: d.Genre ? d.Genre.split(',')[0].trim() : '',
+      poster: d.Poster && d.Poster !== 'N/A' ? d.Poster : null,
+      status: 'Returning', region: guessRegion(d.Country||''),
+      season: '', airDate: '',
+      episodes: d.totalSeasons ? `${d.totalSeasons} seasons` : '',
+      notes: '', addedAt: Date.now(), imdbId
+    };
+    addEntry(entry);
+  } catch(e) {
+    addEntry({ id:uid(), title, type: type==='movie'?'Film':'TV', year:+year||null, network:'', genre:'', poster:null, status:'Returning', region:'US', season:'', airDate:'', episodes:'', notes:'', addedAt:Date.now() });
+  }
+}
+
+function guessRegion(c) {
+  if (!c) return 'Other';
+  if (/united kingdom|UK|GB/i.test(c)) return 'UK';
+  if (/united states|USA|US/i.test(c)) return 'US';
+  return 'Other';
+}
+
+// ===== MANUAL ADD =====
+function addManual() {
+  const t = document.getElementById('mTitle').value.trim();
+  if (!t) { toast('Please enter a title','e'); return; }
+  addEntry({
+    id: uid(), title: t,
+    type: document.getElementById('mType').value,
+    region: document.getElementById('mRegion').value,
+    network: document.getElementById('mNetwork').value.trim(),
+    status: document.getElementById('mStatus').value,
+    season: document.getElementById('mSeason').value.trim(),
+    airDate: document.getElementById('mAirDate').value.trim(),
+    notes: document.getElementById('mNotes').value.trim(),
+    poster: null, year: null, episodes: '', genre: '', addedAt: Date.now()
+  });
+}
+
+function addEntry(entry) {
+  shows.unshift(entry);
+  save();
+  render();
+  closeOverlay('addOverlay');
+  toast(`${entry.title} added!`, 's');
+}
+
+// ===== EDIT =====
+function openEdit(id) {
+  const s = shows.find(x=>x.id===id);
+  if (!s) return;
+  document.getElementById('eId').value = s.id;
+  document.getElementById('editModalLabel').textContent = s.title;
+  document.getElementById('eTitle').value = s.title;
+  document.getElementById('eStatus').value = s.status;
+  document.getElementById('eRegion').value = s.region || 'US';
+  document.getElementById('eNetwork').value = s.network || '';
+  document.getElementById('eType').value = s.type || 'TV';
+  document.getElementById('eSeason').value = s.season || '';
+  document.getElementById('eAirDate').value = s.airDate || '';
+  document.getElementById('eEpisodes').value = s.episodes || '';
+  document.getElementById('eGenre').value = s.genre || '';
+  document.getElementById('eNotes').value = s.notes || '';
+  document.getElementById('editOverlay').classList.add('open');
+}
+
+function saveEdit() {
+  const id = document.getElementById('eId').value;
+  const s = shows.find(x=>x.id===id);
+  if (!s) return;
+  const oldStatus = s.status;
+  s.title = document.getElementById('eTitle').value.trim();
+  s.status = document.getElementById('eStatus').value;
+  s.region = document.getElementById('eRegion').value;
+  s.network = document.getElementById('eNetwork').value.trim();
+  s.type = document.getElementById('eType').value;
+  s.season = document.getElementById('eSeason').value.trim();
+  s.airDate = document.getElementById('eAirDate').value.trim();
+  s.episodes = document.getElementById('eEpisodes').value.trim();
+  s.genre = document.getElementById('eGenre').value.trim();
+  s.notes = document.getElementById('eNotes').value.trim();
+  save(); render();
+  closeOverlay('editOverlay');
+  toast(`${s.title} updated!`, 's');
+  if (oldStatus !== s.status && shouldNotify(s.status)) discord(s, oldStatus, s.status);
+}
+
+function removeShow() {
+  const id = document.getElementById('eId').value;
+  const s = shows.find(x=>x.id===id);
+  if (!s || !confirm(`Remove "${s.title}"?`)) return;
+  shows = shows.filter(x=>x.id!==id);
+  save(); render();
+  closeOverlay('editOverlay');
+  toast(`${s.title} removed`, 'i');
+}
+
+// ===== DISCORD =====
+function shouldNotify(status) {
+  if (!cfg.webhook) return false;
+  if (['Returning','Renewed','New Season'].includes(status) && cfg.nRenewed !== false) return true;
+  if (['Cancelled','Ended'].includes(status) && cfg.nCancelled !== false) return true;
+  if (status === 'Filming' && cfg.nFilming !== false) return true;
+  if (status === 'On Hiatus' && cfg.nHiatus) return true;
+  return false;
+}
+
+async function discord(show, oldStatus, newStatus) {
+  const colors = { 'Returning':0x22c55e,'Renewed':0x3b82f6,'New Season':0x7c6af7,'Cancelled':0xef4444,'Ended':0xef4444,'On Hiatus':0xf59e0b,'Filming':0x14b8a6 };
+  const flag = show.region === 'UK' ? '🇬🇧' : show.region === 'US' ? '🇺🇸' : '🌍';
+  const fields = [
+    { name:'Status Change', value:`${statusEmoji(oldStatus)} ${oldStatus} → ${statusEmoji(newStatus)} ${newStatus}`, inline:false },
+    show.network && { name:'Network', value:show.network, inline:true },
+    show.region && { name:'Region', value:`${flag} ${show.region}`, inline:true },
+    show.season && { name:'Season', value:show.season, inline:true },
+    show.episodes && { name:'Episodes', value:show.episodes, inline:true },
+    show.airDate && { name:'Air Date', value:show.airDate, inline:true },
+    show.genre && { name:'Genre', value:show.genre, inline:true },
+  ].filter(Boolean);
+
+  const body = {
+    username: cfg.botName || 'TELLY Bot',
+    embeds: [{
+      title: `${show.type==='Film'?'🎬':'📺'} Status Update — ${show.title}`,
+      description: 'A show on your watchlist has been updated.',
+      color: colors[newStatus] || 0x7c6af7,
+      fields,
+      thumbnail: show.poster ? { url: show.poster } : undefined,
+      footer: { text: `TELLY Tracker • ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}` }
+    }]
+  };
+
+  try {
+    const r = await fetch(cfg.webhook, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+    toast(r.ok ? '🔔 Discord notified!' : 'Discord webhook failed', r.ok ? 's' : 'e');
+  } catch(e) {
+    toast('Could not reach Discord', 'e');
+  }
+}
+
+async function testDiscord() {
+  if (!cfg.webhook) { toast('Enter a webhook URL in Settings first', 'e'); return; }
+  await discord({
+    title:'Severance', type:'TV', region:'US', network:'Apple TV+',
+    season:'Season 3', episodes:'10 episodes', airDate:'Autumn 2025', genre:'Sci-Fi', poster:null
+  }, 'Renewed', 'Returning');
+}
+
+// ===== IMPORT/EXPORT =====
+function save() { localStorage.setItem('telly_shows', JSON.stringify(shows)); }
+
+function exportJSON() {
+  dl(JSON.stringify({ shows, version:1, exportedAt: new Date().toISOString() }, null, 2), 'telly-backup.json', 'application/json');
+  toast('Exported JSON!', 's');
+}
+
+function exportCSV() {
+  const h = ['Title','Type','Region','Network','Status','Season','Air Date','Episodes','Genre','Year','Notes'];
+  const rows = shows.map(s => [s.title,s.type,s.region,s.network,s.status,s.season,s.airDate,s.episodes,s.genre,s.year,s.notes].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`));
+  dl([h.join(','), ...rows.map(r=>r.join(','))].join('\n'), 'telly-export.csv', 'text/csv');
+  toast('Exported CSV!', 's');
+}
+
+function importJSON(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      const imp = Array.isArray(d) ? d : d.shows;
+      if (!Array.isArray(imp)) throw new Error();
+      const existing = new Set(shows.map(s=>s.id));
+      const fresh = imp.filter(s=>!existing.has(s.id));
+      shows = [...fresh, ...shows];
+      save(); render();
+      toast(`Imported ${fresh.length} shows`, 's');
+    } catch { toast('Invalid file format', 'e'); }
+  };
+  r.readAsText(f);
+  e.target.value = '';
+}
+
+function dl(content, name, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], { type }));
+  a.download = name;
+  a.click();
+}
+
+// ===== MODALS =====
+function openAdd() {
+  document.getElementById('addOverlay').classList.add('open');
+  document.getElementById('sQuery').value = '';
+  document.getElementById('results').innerHTML = '';
+  setTimeout(() => document.getElementById('sQuery').focus(), 80);
+}
+
+function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+function openPanel() { document.getElementById('panel').classList.add('open'); }
+function closePanel() { document.getElementById('panel').classList.remove('open'); }
+
+function switchTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('tSearch').style.display = tab==='search' ? 'block' : 'none';
+  document.getElementById('tManual').style.display = tab==='manual' ? 'block' : 'none';
+}
+
+document.getElementById('addOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeOverlay('addOverlay'); });
+document.getElementById('editOverlay').addEventListener('click', e => { if(e.target===e.currentTarget) closeOverlay('editOverlay'); });
+document.addEventListener('keydown', e => { if(e.key==='Escape') { closeOverlay('addOverlay'); closeOverlay('editOverlay'); closePanel(); }});
+
+// ===== TOAST =====
+function toast(msg, type='i') {
+  const w = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<span>${type==='s'?'✅':type==='e'?'❌':'ℹ️'}</span> ${msg}`;
+  w.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+// ===== UTILS =====
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+</script>
+</body>
+</html>
